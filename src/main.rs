@@ -6,12 +6,14 @@ use bevy::{
 
 use animation::{
     systems::{
-        animate_sprite, spawn_animated_entity
+        animate_sprites, spawn_animated_entity
     },
     AnimatedEntity, AnimationIndices, SpriteLayout
 };
-use controls::player_movement;
-use mouse::{Mouse, MouseMovement};
+use controls::systems::player_movement;
+use mouse::{
+    Mouse, MouseMovement
+};
 
 mod mouse;
 mod animation;
@@ -64,20 +66,6 @@ fn spawn_mouse(
     );
 }
 
-// fn handle_mouse_move(
-//     keyboard_input: Res<ButtonInput<KeyCode>>,
-//     asset_server: Res<AssetServer>,
-//     mut mouse_query: Query<&mut Handle<Image>, With<Mouse>>
-// ) -> () {
-//     if keyboard_input.just_pressed(KeyCode::ArrowLeft) {
-//         if let Ok(handle) = mouse_query.get_single_mut() {
-//             let texture = asset_server.load("sprites/mouse_idle.png");
-
-//             handle = *texture.clone();
-//         }
-//     }
-// }
-
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins
@@ -102,7 +90,7 @@ fn main() {
         .init_resource::<MouseMovement>()
         .add_systems(Startup, spawn_camera)
         .add_systems(Startup, spawn_mouse)
-        .add_systems(Update, animate_sprite)
+        .add_systems(Update, animate_sprites)
         .add_systems(Update, player_movement)
         .run();
 }

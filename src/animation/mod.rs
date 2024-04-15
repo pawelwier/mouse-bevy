@@ -26,14 +26,6 @@ pub struct AnimatedEntity {
 }
 
 impl AnimatedEntity {
-    pub fn get_layout(&self) -> (usize, usize) {
-        (self.sprite_layout.columns, self.sprite_layout.rows)
-    }
-
-    pub fn get_size(&self) -> (f32, f32) {
-        (self.sprite_layout.width, self.sprite_layout.height)
-    }
-
     pub fn get_texture(&self) -> &Handle<Image> {
         &self.texture
     }
@@ -41,5 +33,4 @@ impl AnimatedEntity {
     pub fn get_animation_incides(&self)-> AnimationIndices {
         self.animation_indices
     }
-
 }

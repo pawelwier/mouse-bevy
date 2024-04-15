@@ -1,17 +1,17 @@
 use bevy::prelude::*;
 
 use super::{
-    AnimatedEntity, AnimationIndices, AnimationTimer
+    AnimatedEntity, AnimationIndices, AnimationTimer, SpriteLayout
 };
 
-pub fn animate_sprite(
+pub fn animate_sprites(
     time: Res<Time>,
-    mut query: Query<(&AnimationIndices, &mut AnimationTimer, &mut TextureAtlas)>
+    mut query: Query<(&AnimationIndices, &mut AnimationTimer, &mut TextureAtlas)>,
 ) {
     for (indices, mut timer, mut atlas) in &mut query {
         timer.tick(time.delta());
         if timer.just_finished() {
-            atlas.index = if atlas.index == indices.last {
+            atlas.index = if atlas.index >= indices.last {
                 indices.first
             } else {
                 atlas.index + 1
@@ -27,15 +27,8 @@ pub fn spawn_animated_entity(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     component: impl Component
 ) -> () {
-    let (width, height) = animated_entity.get_size();
-    let (columns,rows) = animated_entity.get_layout();
-    let layout = TextureAtlasLayout::from_grid(
-        Vec2::new(
-            width,
-            height
-        ),
-        columns, rows, None, None
-    );
+    let layout: TextureAtlasLayout = map_atlas_layout(&animated_entity.sprite_layout);
+    
     commands.spawn((
         SpriteSheetBundle {
             texture: animated_entity.get_texture().clone(),
@@ -54,4 +47,14 @@ pub fn spawn_animated_entity(
         AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),
         component
     ));
+}
+
+pub fn map_atlas_layout(sprite_layout: &SpriteLayout) -> TextureAtlasLayout {
+    TextureAtlasLayout::from_grid(
+        Vec2::new(
+            sprite_layout.width,
+            sprite_layout.height
+        ),
+        sprite_layout.columns, sprite_layout.rows, None, None
+    )
 }
