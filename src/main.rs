@@ -1,16 +1,21 @@
 use bevy::{
-    prelude::*,
-    window::{PrimaryWindow, WindowResolution}
+    prelude::*, window::{
+        PrimaryWindow, WindowResolution
+    }
 };
 
 use animation::{
-    systems::animate_sprite,
-    AnimationIndices,
-    AnimationTimer
+    systems::{
+        animate_sprite, spawn_animated_entity
+    },
+    AnimatedEntity, AnimationIndices, SpriteLayout
 };
+use controls::player_movement;
+use mouse::{Mouse, MouseMovement};
 
 mod mouse;
 mod animation;
+mod controls;
 
 const MOUSE_SIZE: f32 = 64.0;
 const WINDOW_WIDTH: f32 = 800.0;
@@ -19,7 +24,7 @@ const WINDOW_HEIGHT: f32 = 600.0;
 pub fn spawn_camera(
     mut commands: Commands,
     window_query: Query<&Window, With<PrimaryWindow>>
-) {
+) -> () {
     let window = window_query.get_single().unwrap();
 
     commands.spawn(
@@ -31,42 +36,47 @@ pub fn spawn_camera(
 }
 
 fn spawn_mouse(
-    mut commands: Commands,
+    commands: Commands,
     window_query: Query<&Window, With<PrimaryWindow>>,
     asset_server: Res<AssetServer>,
-    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+    texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     let window = window_query.get_single().unwrap();
     let texture = asset_server.load("sprites/mouse_idle.png");
-    let layout = TextureAtlasLayout::from_grid(
-        Vec2::new(
-            MOUSE_SIZE,
-            MOUSE_SIZE
-        ),
-        6, 1, None, None
-    );
-    let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    let animation_indices = AnimationIndices { first: 0, last: 5 };
-    commands.spawn((
-        SpriteSheetBundle {
+
+    spawn_animated_entity(
+        commands,
+        AnimatedEntity {
             texture,
-            atlas: TextureAtlas {
-                layout: texture_atlas_layout,
-                index: animation_indices.first,
-            },
-            transform: Transform { 
-                translation: Vec3 { 
-                    x: window.width() / 2.0, y: MOUSE_SIZE, z: 0.0 
-                }, 
-                scale: Vec3 { x: 2.0, y: 2.0, z: 0.0 }, 
-                ..Default::default() 
-            },
-            ..default()
+            animation_indices: AnimationIndices { first: 0, last: 5 },
+            sprite_layout: SpriteLayout {
+                columns: 6,
+                rows: 1,
+                width: MOUSE_SIZE,
+                height: MOUSE_SIZE
+            }
         },
-        animation_indices,
-        AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),
-    ));
+        Vec3 { 
+            x: window.width() / 2.0, y: MOUSE_SIZE, z: 0.0 
+        },
+        texture_atlas_layouts,
+        Mouse {}
+    );
 }
+
+// fn handle_mouse_move(
+//     keyboard_input: Res<ButtonInput<KeyCode>>,
+//     asset_server: Res<AssetServer>,
+//     mut mouse_query: Query<&mut Handle<Image>, With<Mouse>>
+// ) -> () {
+//     if keyboard_input.just_pressed(KeyCode::ArrowLeft) {
+//         if let Ok(handle) = mouse_query.get_single_mut() {
+//             let texture = asset_server.load("sprites/mouse_idle.png");
+
+//             handle = *texture.clone();
+//         }
+//     }
+// }
 
 fn main() {
     App::new()
@@ -88,9 +98,11 @@ fn main() {
                 },
             )
             .set(ImagePlugin::default_nearest())
-        )   
+        )
+        .init_resource::<MouseMovement>()
         .add_systems(Startup, spawn_camera)
         .add_systems(Startup, spawn_mouse)
         .add_systems(Update, animate_sprite)
+        .add_systems(Update, player_movement)
         .run();
 }

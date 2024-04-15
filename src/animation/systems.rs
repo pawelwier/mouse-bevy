@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 
-use super::{AnimationIndices, AnimationTimer};
+use super::{
+    AnimatedEntity, AnimationIndices, AnimationTimer
+};
 
 pub fn animate_sprite(
     time: Res<Time>,
@@ -16,4 +18,40 @@ pub fn animate_sprite(
             }
         }
     }
+}
+
+pub fn spawn_animated_entity(
+    mut commands: Commands,
+    animated_entity: AnimatedEntity,
+    translation: Vec3,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+    component: impl Component
+) -> () {
+    let (width, height) = animated_entity.get_size();
+    let (columns,rows) = animated_entity.get_layout();
+    let layout = TextureAtlasLayout::from_grid(
+        Vec2::new(
+            width,
+            height
+        ),
+        columns, rows, None, None
+    );
+    commands.spawn((
+        SpriteSheetBundle {
+            texture: animated_entity.get_texture().clone(),
+            atlas: TextureAtlas {
+                layout: texture_atlas_layouts.add(layout),
+                index: animated_entity.get_animation_incides().first,
+            },
+            transform: Transform { 
+                translation, 
+                scale: Vec3 { x: 2.0, y: 2.0, z: 0.0 }, 
+                ..Default::default() 
+            },
+            ..default()
+        },
+        animated_entity.get_animation_incides(),
+        AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),
+        component
+    ));
 }
