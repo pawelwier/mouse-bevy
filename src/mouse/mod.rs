@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{math::f32, prelude::*};
 
 use crate::{
     animation::{
@@ -32,7 +32,10 @@ pub fn get_mouse_animation(
         MovementState::Idle => 
             get_mouse_animated_entity(asset_server, "sprites/mouse_idle.png".to_string(), 6),
         MovementState::Move => 
-            get_mouse_animated_entity(asset_server, "sprites/mouse_move.png".to_string(), 8)
+            get_mouse_animated_entity(asset_server, "sprites/mouse_move.png".to_string(), 8),
+        MovementState::Jump => {
+            get_mouse_animated_entity(asset_server, "sprites/mouse_jump.png".to_string(), 9)
+        }
     }
 }
 
@@ -43,19 +46,22 @@ pub struct Mouse {}
 pub enum MovementState {
     Idle,
     Move,
-    // Jump etc. TODO
+    Jump
 }
+
 #[derive(Resource)]
 pub struct MouseMovement {
     pub speed: f32,
-    pub state: MovementState
+    pub state: MovementState,
+    pub jump: f32
 }
 
 impl Default for MouseMovement {
     fn default() -> MouseMovement {
         MouseMovement {
             speed: 120.0,
-            state: MovementState::Idle
+            state: MovementState::Idle,
+            jump: 0.0
         }
     }
 }
@@ -63,5 +69,9 @@ impl Default for MouseMovement {
 impl MouseMovement {
     pub fn set_state(&mut self, state: MovementState) -> () {
         self.state = state;
+    }
+
+    pub fn set_jump(&mut self, jump: f32) -> () {
+        self.jump = jump;
     }
 }

@@ -2,9 +2,9 @@ use bevy::prelude::*;
 
 use crate::{animation::{systems::map_atlas_layout, AnimatedEntity, AnimationIndices}, mouse::{
     get_mouse_animation, Mouse, MouseMovement, MovementState
-}};
+}, MOUSE_SIZE};
 
-use super::key_pressed;
+use super::{key_just_pressed, key_pressed, GRAVITY};
 
 pub fn player_movement(
     keyboard_input: Res<ButtonInput<KeyCode>>,
@@ -19,13 +19,24 @@ pub fn player_movement(
     if let Ok(
         (mut transform, mut image, mut atlas, mut indices)
     ) = mouse_query.get_single_mut() {
-        let mut direction = Vec3::ZERO;
-        let mut x = 0.0;
+        let mut direction: Vec3 = Vec3::ZERO;
+        let mut x: f32 = 0.0;
 
         if key_pressed(&keyboard_input, KeyCode::ArrowLeft) { x = -1.0; } 
         if key_pressed(&keyboard_input, KeyCode::ArrowRight) { x = 1.0; }
-
+        
         let is_move: bool = x != 0.0;
+        
+        if mouse_movement.state == MovementState::Jump {
+            let jump_power = GRAVITY * time.delta_seconds() * 3.0 - mouse_movement.jump;
+            transform.translation.y += jump_power;
+            if transform.translation.y < MOUSE_SIZE {
+                transform.translation.y = MOUSE_SIZE;
+                mouse_movement.set_state(MovementState::Idle);
+            }
+            mouse_movement.jump += time.delta_seconds() * 8.2;
+            return;
+        }
 
         if is_move {
             mouse_movement.set_state(MovementState::Move);
@@ -37,8 +48,13 @@ pub fn player_movement(
             } else {
                 transform.rotation = Quat::default();
             }
-        } else {
-            mouse_movement.set_state(MovementState::Idle);
+
+            transform.translation += direction * mouse_movement.speed * time.delta_seconds();
+        }
+
+        if key_just_pressed(&keyboard_input, KeyCode::Space) { 
+            mouse_movement.set_state(MovementState::Jump);
+            mouse_movement.set_jump(1.0);
         }
 
         let animated_entity: AnimatedEntity = get_mouse_animation(
@@ -47,11 +63,8 @@ pub fn player_movement(
         );
         *image = animated_entity.texture;
         *indices = animated_entity.animation_indices;
+        atlas.layout = texture_atlas_layouts.add(map_atlas_layout(&animated_entity.sprite_layout));
 
-        if is_move {
-            atlas.layout = texture_atlas_layouts.add(map_atlas_layout(&animated_entity.sprite_layout))
-        };
-        
-        transform.translation += direction * mouse_movement.speed * time.delta_seconds();        
+        if !is_move { mouse_movement.set_state(MovementState::Idle); }
     }
 }
