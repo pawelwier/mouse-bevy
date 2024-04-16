@@ -21,12 +21,14 @@ pub fn player_movement(
     ) = mouse_query.get_single_mut() {
         let mut direction: Vec3 = Vec3::ZERO;
         let mut x: f32 = 0.0;
+        let mut is_jump: bool = false;
 
+        if key_just_pressed(&keyboard_input, KeyCode::Space) { is_jump = true; }
         if key_pressed(&keyboard_input, KeyCode::ArrowLeft) { x = -1.0; } 
         if key_pressed(&keyboard_input, KeyCode::ArrowRight) { x = 1.0; }
-        
+
         let is_move: bool = x != 0.0;
-        
+
         if mouse_movement.state == MovementState::Jump {
             let jump_power = GRAVITY * time.delta_seconds() * 3.0 - mouse_movement.jump;
             transform.translation.y += jump_power;
@@ -51,11 +53,10 @@ pub fn player_movement(
 
             transform.translation += direction * mouse_movement.speed * time.delta_seconds();
         }
-
-        if key_just_pressed(&keyboard_input, KeyCode::Space) { 
+        if is_jump {
             mouse_movement.set_state(MovementState::Jump);
             mouse_movement.set_jump(1.0);
-        }
+        } 
 
         let animated_entity: AnimatedEntity = get_mouse_animation(
             &mouse_movement.state,
@@ -65,6 +66,6 @@ pub fn player_movement(
         *indices = animated_entity.animation_indices;
         atlas.layout = texture_atlas_layouts.add(map_atlas_layout(&animated_entity.sprite_layout));
 
-        if !is_move { mouse_movement.set_state(MovementState::Idle); }
+        if !is_move && !is_jump { mouse_movement.set_state(MovementState::Idle); }
     }
 }
