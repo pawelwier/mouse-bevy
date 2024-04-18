@@ -49,11 +49,19 @@ pub enum MovementState {
     Jump
 }
 
+#[derive(Debug, PartialEq)]
+pub enum Direction {
+    Left,
+    Right,
+    Still
+}
+
 #[derive(Resource)]
 pub struct MouseMovement {
     pub speed: f32,
     pub state: MovementState,
-    pub jump: f32
+    pub jump: f32,
+    pub direction: Direction
 }
 
 impl Default for MouseMovement {
@@ -61,7 +69,8 @@ impl Default for MouseMovement {
         MouseMovement {
             speed: 120.0,
             state: MovementState::Idle,
-            jump: 0.0
+            jump: 0.0,
+            direction: Direction::Still
         }
     }
 }
@@ -73,5 +82,13 @@ impl MouseMovement {
 
     pub fn set_jump(&mut self, jump: f32) -> () {
         self.jump = jump;
+    }
+
+    pub fn set_direction(&mut self, direction: Direction) -> () {
+        self.direction = direction;
+    }
+
+    pub fn is_moving(&self) -> bool {
+        self.direction == Direction::Left ||self.direction == Direction::Right
     }
 }

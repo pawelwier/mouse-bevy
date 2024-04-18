@@ -4,15 +4,13 @@ use bevy::{
     }
 };
 
-use animation::{
+use animation::
     systems::{
         animate_sprites, spawn_animated_entity
-    },
-    AnimatedEntity, AnimationIndices, SpriteLayout
-};
+    };
 use controls::systems::player_movement;
 use mouse::{
-    Mouse, MouseMovement
+    get_mouse_animation, Mouse, MouseMovement, MovementState
 };
 
 mod mouse;
@@ -44,20 +42,13 @@ fn spawn_mouse(
     texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     let window = window_query.get_single().unwrap();
-    let texture = asset_server.load("sprites/mouse_idle.png");
 
     spawn_animated_entity(
         commands,
-        AnimatedEntity {
-            texture,
-            animation_indices: AnimationIndices { first: 0, last: 5 },
-            sprite_layout: SpriteLayout {
-                columns: 6,
-                rows: 1,
-                width: MOUSE_SIZE,
-                height: MOUSE_SIZE
-            }
-        },
+        get_mouse_animation(
+            &MovementState::Idle,
+            asset_server
+        ),
         Vec3 { 
             x: window.width() / 2.0, y: MOUSE_SIZE, z: 0.0 
         },
