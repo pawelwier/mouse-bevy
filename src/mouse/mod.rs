@@ -1,10 +1,11 @@
 use bevy::{math::f32, prelude::*};
 
-use crate::{
-    animation::{
-        AnimatedEntity, AnimationIndices, SpriteLayout
-    }, 
-    MOUSE_SIZE
+pub const MOUSE_SIZE: f32 = 64.0;
+pub const MOUSE_SCALE: f32 = 2.0;
+pub const MOUSE_JUMP: f32 = 8.5;
+
+use crate::animation::{
+    AnimatedEntity, AnimationIndices, SpriteLayout
 };
 
 fn get_mouse_animated_entity(
@@ -67,7 +68,7 @@ pub struct MouseMovement {
 impl Default for MouseMovement {
     fn default() -> MouseMovement {
         MouseMovement {
-            speed: 120.0,
+            speed: 220.0,
             state: MovementState::Idle,
             jump: 0.0,
             direction: Direction::Still

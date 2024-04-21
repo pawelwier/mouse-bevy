@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::mouse::MOUSE_SCALE;
+
 use super::{
     AnimatedEntity, AnimationIndices, AnimationTimer, SpriteLayout
 };
@@ -38,7 +40,7 @@ pub fn spawn_animated_entity(
             },
             transform: Transform { 
                 translation, 
-                scale: Vec3 { x: 2.0, y: 2.0, z: 0.0 }, 
+                scale: Vec3 { x: MOUSE_SCALE, y: MOUSE_SCALE, z: 0.0 }, 
                 ..Default::default() 
             },
             ..default()

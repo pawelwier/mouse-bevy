@@ -10,14 +10,13 @@ use animation::
     };
 use controls::systems::player_movement;
 use mouse::{
-    get_mouse_animation, Mouse, MouseMovement, MovementState
+    get_mouse_animation, Mouse, MouseMovement, MovementState, MOUSE_SIZE
 };
 
 mod mouse;
 mod animation;
 mod controls;
 
-const MOUSE_SIZE: f32 = 64.0;
 const WINDOW_WIDTH: f32 = 800.0;
 const WINDOW_HEIGHT: f32 = 600.0;
 

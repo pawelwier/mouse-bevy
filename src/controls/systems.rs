@@ -1,12 +1,24 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::{animation::{systems::map_atlas_layout, AnimatedEntity, AnimationIndices}, mouse::{
-    get_mouse_animation, Direction, Mouse, MouseMovement, MovementState
-}, MOUSE_SIZE};
+    get_mouse_animation, Direction, Mouse, MouseMovement, MovementState, MOUSE_JUMP, MOUSE_SCALE, MOUSE_SIZE
+}};
 
 use super::{key_just_pressed, key_pressed, GRAVITY};
 
+fn limit_player_movement(
+    window: &Window,
+    move_direction: f32,
+    mouse_position: f32
+
+) -> bool {
+    let left_border: bool = mouse_position <= MOUSE_SIZE / MOUSE_SCALE / 2.0 && move_direction == -1.0;
+    let right_border: bool = mouse_position >= window.width() - MOUSE_SIZE / MOUSE_SCALE / 2.0 && move_direction == 1.0;
+    left_border || right_border
+}
+
 pub fn player_movement(
+    window_query: Query<&Window, With<PrimaryWindow>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut mouse_query: Query<(
         &mut Transform, &mut Handle<Image>, &mut TextureAtlas, &mut AnimationIndices
@@ -20,6 +32,8 @@ pub fn player_movement(
     if let Ok(
         (mut transform, mut image, mut atlas, mut indices)
     ) = mouse_query.get_single_mut() {
+        let window = window_query.get_single().unwrap();
+
         let mut direction: Vec3 = Vec3::ZERO;
         let mut x: f32 = 0.0;
         let mut is_jump: bool = false;
@@ -35,7 +49,13 @@ pub fn player_movement(
             transform.translation.y += jump_power;
             if mouse_movement.is_moving() {
                 let direction: f32 = if mouse_movement.direction == Direction::Left { -1.0 } else { 1.0 };
-                transform.translation.x += 2.3 * direction;
+                if !limit_player_movement(
+                    window, x, transform.translation.x
+                ) { 
+                    transform.translation.x += 2.3 * direction;
+                } else {
+                    mouse_movement.direction = Direction::Still;
+                }
              }
             if transform.translation.y < MOUSE_SIZE {
                 transform.translation.y = MOUSE_SIZE;
@@ -47,7 +67,7 @@ pub fn player_movement(
                 mouse_movement.set_state(new_state);
                 return;
             }
-            mouse_movement.jump += time.delta_seconds() * 8.5;
+            mouse_movement.jump += time.delta_seconds() * MOUSE_JUMP;
             return;
         }
 
@@ -65,7 +85,9 @@ pub fn player_movement(
 
             }
 
-            transform.translation += direction * mouse_movement.speed * time.delta_seconds();
+            if !limit_player_movement(
+                window, x, transform.translation.x
+            ) { transform.translation += direction * mouse_movement.speed * time.delta_seconds(); }
         }
         
         if is_jump {
