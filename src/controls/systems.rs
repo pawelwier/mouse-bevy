@@ -1,6 +1,6 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 
-use crate::{animation::{systems::map_atlas_layout, AnimatedEntity, AnimationIndices}, mouse::{
+use crate::{animation::{systems::map_atlas_layout, AnimatedEntity}, mouse::{
     get_mouse_animation, Direction, Mouse, MouseMovement, MovementState, MOUSE_BOTTOM_MARGIN, MOUSE_JUMP, MOUSE_SCALE, MOUSE_SIZE
 }};
 
@@ -21,16 +21,15 @@ pub fn player_movement(
     window_query: Query<&Window, With<PrimaryWindow>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut mouse_query: Query<(
-        &mut Transform, &mut Handle<Image>, &mut TextureAtlas, &mut AnimationIndices
+        &mut Transform, &mut Handle<Image>, &mut TextureAtlas
     ), With<Mouse>>,
     time: Res<Time>,
     asset_server: Res<AssetServer>,
-    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+    texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     mut mouse_movement: ResMut<MouseMovement>
 ) {
-    /* TODO: fix sprites */
     if let Ok(
-        (mut transform, mut image, mut atlas, mut indices)
+        (mut transform, mut image, mut atlas)
     ) = mouse_query.get_single_mut() {
         let window = window_query.get_single().unwrap();
 
@@ -100,12 +99,27 @@ pub fn player_movement(
             mouse_movement.set_direction(Direction::Still);
         }
 
-        let animated_entity: AnimatedEntity = get_mouse_animation(
-            &mouse_movement.state,
-            asset_server
+        set_atlas_layout(
+            mouse_movement,
+            asset_server,
+            &mut image,
+            &mut atlas,
+            texture_atlas_layouts
         );
-        *image = animated_entity.texture;
-        *indices = animated_entity.animation_indices;
-        atlas.layout = texture_atlas_layouts.add(map_atlas_layout(&animated_entity.sprite_layout));
     }
+}
+
+fn set_atlas_layout(
+    mouse_movement: ResMut<MouseMovement>,
+    asset_server: Res<AssetServer>,
+    image: &mut Handle<Image>, 
+    atlas: &mut TextureAtlas,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>
+) -> () {
+    let animated_entity: AnimatedEntity = get_mouse_animation(
+        &mouse_movement.state,
+        asset_server
+    );
+    *image = animated_entity.texture;
+    atlas.layout = texture_atlas_layouts.add(map_atlas_layout(&animated_entity.sprite_layout));
 }
