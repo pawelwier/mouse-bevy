@@ -1,7 +1,7 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::{animation::{systems::map_atlas_layout, AnimatedEntity, AnimationIndices}, mouse::{
-    get_mouse_animation, Direction, Mouse, MouseMovement, MovementState, MOUSE_JUMP, MOUSE_SCALE, MOUSE_SIZE
+    get_mouse_animation, Direction, Mouse, MouseMovement, MovementState, MOUSE_BOTTOM_MARGIN, MOUSE_JUMP, MOUSE_SCALE, MOUSE_SIZE
 }};
 
 use super::{key_just_pressed, key_pressed, GRAVITY};
@@ -57,8 +57,8 @@ pub fn player_movement(
                     mouse_movement.direction = Direction::Still;
                 }
              }
-            if transform.translation.y < MOUSE_SIZE {
-                transform.translation.y = MOUSE_SIZE;
+            if transform.translation.y < MOUSE_SIZE - MOUSE_BOTTOM_MARGIN {
+                transform.translation.y = MOUSE_SIZE - MOUSE_BOTTOM_MARGIN;
                 let new_state:MovementState = if mouse_movement.is_moving() {
                     MovementState::Move
                 } else {

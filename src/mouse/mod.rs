@@ -2,7 +2,8 @@ use bevy::{math::f32, prelude::*};
 
 pub const MOUSE_SIZE: f32 = 64.0;
 pub const MOUSE_SCALE: f32 = 2.0;
-pub const MOUSE_JUMP: f32 = 8.5;
+pub const MOUSE_JUMP: f32 = 9.5;
+pub const MOUSE_BOTTOM_MARGIN: f32 = 17.0 * MOUSE_SCALE;
 
 use crate::animation::{
     AnimatedEntity, AnimationIndices, SpriteLayout

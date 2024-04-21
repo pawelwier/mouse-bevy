@@ -38,10 +38,10 @@ pub fn spawn_animated_entity(
                 layout: texture_atlas_layouts.add(layout),
                 index: animated_entity.get_animation_incides().first,
             },
-            transform: Transform { 
-                translation, 
-                scale: Vec3 { x: MOUSE_SCALE, y: MOUSE_SCALE, z: 0.0 }, 
-                ..Default::default() 
+            transform: Transform {
+                translation,
+                scale: Vec3 { x: MOUSE_SCALE, y: MOUSE_SCALE, z: 0.0 },
+                ..Default::default()
             },
             ..default()
         },

@@ -9,13 +9,15 @@ use animation::
         animate_sprites, spawn_animated_entity
     };
 use controls::systems::player_movement;
+use level::systems::spawn_level;
 use mouse::{
-    get_mouse_animation, Mouse, MouseMovement, MovementState, MOUSE_SIZE
+    get_mouse_animation, Mouse, MouseMovement, MovementState, MOUSE_BOTTOM_MARGIN, MOUSE_SIZE
 };
 
 mod mouse;
 mod animation;
 mod controls;
+mod level;
 
 const WINDOW_WIDTH: f32 = 800.0;
 const WINDOW_HEIGHT: f32 = 600.0;
@@ -49,7 +51,7 @@ fn spawn_mouse(
             asset_server
         ),
         Vec3 { 
-            x: window.width() / 2.0, y: MOUSE_SIZE, z: 0.0 
+            x: window.width() / 2.0, y: MOUSE_SIZE - MOUSE_BOTTOM_MARGIN, z: 0.0 
         },
         texture_atlas_layouts,
         Mouse {}
@@ -80,6 +82,7 @@ fn main() {
         .init_resource::<MouseMovement>()
         .add_systems(Startup, spawn_camera)
         .add_systems(Startup, spawn_mouse)
+        .add_systems(Startup, spawn_level)
         .add_systems(Update, animate_sprites)
         .add_systems(Update, player_movement)
         .run();

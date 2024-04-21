@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 pub mod systems;
 
-pub const GRAVITY: f32 = 98.0;
+pub const GRAVITY: f32 = 108.0;
 
 pub fn key_pressed (
     keyboard_input: &Res<ButtonInput<KeyCode>>,
