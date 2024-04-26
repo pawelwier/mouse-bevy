@@ -8,10 +8,10 @@ use animation::
     systems::{
         animate_sprites, spawn_animated_entity
     };
-use controls::systems::player_movement;
-use level::systems::spawn_level;
+use controls::systems::{check_jump_on_object, check_mouse_on_el, player_movement};
+use level::{systems::{grab_cheese, spawn_level}, LevelScroll};
 use mouse::{
-    get_mouse_animation, Mouse, MouseMovement, MovementState, MOUSE_BOTTOM_MARGIN, MOUSE_SIZE
+    get_mouse_animation, Mouse, MouseMovement, MovementState, MOUSE_MARGIN, MOUSE_SIZE
 };
 
 mod mouse;
@@ -51,7 +51,7 @@ fn spawn_mouse(
             asset_server
         ),
         Vec3 { 
-            x: window.width() / 2.0, y: MOUSE_SIZE - MOUSE_BOTTOM_MARGIN, z: 0.0 
+            x: window.width() / 2.0, y: MOUSE_SIZE - MOUSE_MARGIN, z: 0.0 
         },
         texture_atlas_layouts,
         Mouse {}
@@ -80,10 +80,14 @@ fn main() {
             .set(ImagePlugin::default_nearest())
         )
         .init_resource::<MouseMovement>()
+        .init_resource::<LevelScroll>()
         .add_systems(Startup, spawn_camera)
         .add_systems(Startup, spawn_mouse)
         .add_systems(Startup, spawn_level)
         .add_systems(Update, animate_sprites)
         .add_systems(Update, player_movement)
+        .add_systems(Update, check_jump_on_object)
+        .add_systems(Update, check_mouse_on_el)
+        .add_systems(Update, grab_cheese)
         .run();
 }

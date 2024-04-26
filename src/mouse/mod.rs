@@ -3,7 +3,7 @@ use bevy::{math::f32, prelude::*};
 pub const MOUSE_SIZE: f32 = 64.0;
 pub const MOUSE_SCALE: f32 = 2.0;
 pub const MOUSE_JUMP: f32 = 9.5;
-pub const MOUSE_BOTTOM_MARGIN: f32 = 17.0 * MOUSE_SCALE;
+pub const MOUSE_MARGIN: f32 = 16.0 * MOUSE_SCALE;
 
 use crate::animation::{
     AnimatedEntity, AnimationIndices, SpriteLayout
@@ -23,7 +23,7 @@ fn get_mouse_animated_entity(
             width: MOUSE_SIZE,
             height: MOUSE_SIZE
         }
-    }   
+    }
 }
 
 pub fn get_mouse_animation(
@@ -35,7 +35,7 @@ pub fn get_mouse_animation(
             get_mouse_animated_entity(asset_server, "sprites/mouse_idle.png".to_string(), 6),
         MovementState::Move => 
             get_mouse_animated_entity(asset_server, "sprites/mouse_move.png".to_string(), 8),
-        MovementState::Jump => {
+        MovementState::Jump | MovementState::Fall => {
             get_mouse_animated_entity(asset_server, "sprites/mouse_jump.png".to_string(), 9)
         }
     }
@@ -48,7 +48,8 @@ pub struct Mouse {}
 pub enum MovementState {
     Idle,
     Move,
-    Jump
+    Jump,
+    Fall
 }
 
 #[derive(Debug, PartialEq)]
@@ -92,5 +93,9 @@ impl MouseMovement {
 
     pub fn is_moving(&self) -> bool {
         self.direction == Direction::Left ||self.direction == Direction::Right
+    }
+
+    pub fn is_jumping(&self) -> bool {
+        self.state == MovementState::Jump || self.state == MovementState::Fall
     }
 }
